@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <title>French Lookup</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 2em;
-    }
-    #text {
-      line-height: 1.6;
-      cursor: pointer;
-    }
+    body { font-family: sans-serif; margin: 2em; }
+    #text { line-height: 1.6; cursor: pointer; }
     #popup {
       display: none;
       position: absolute;
@@ -36,14 +30,17 @@
 
   <script>
     const popup = document.getElementById('popup');
-    const backendBase = 'https://lectrice.onrender.com';
+    const backendBase = 'https://lectrice.onrender.com'; // Replace with your Render URL
+    const defaultLimit = 5; // How many definitions to fetch
 
     document.getElementById('text').addEventListener('mouseup', async (e) => {
       const word = window.getSelection().toString().trim();
       if (!word || !/^[a-zA-ZÀ-ÿ-]+$/.test(word)) return;
 
       try {
-        const res = await fetch(`${backendBase}/define/${encodeURIComponent(word)}`);
+        const res = await fetch(
+          `${backendBase}/define/${encodeURIComponent(word)}?limit=${defaultLimit}`
+        );
         const data = await res.json();
 
         if (data.error) {
