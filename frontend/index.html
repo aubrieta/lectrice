@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>French Lookup</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2em;
+    }
+    #text {
+      line-height: 1.6;
+      cursor: pointer;
+    }
+    #popup {
+      display: none;
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 1em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      max-width: 300px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Texte en français</h2>
+  <div id="text">
+    Bonjour, je m'appelle Marie. J'aime lire des livres et apprendre de nouvelles langues.
+    Chaque jour, je pratique mon français.
+  </div>
+
+  <div id="popup"></div>
+
+  <script>
+    const popup = document.getElementById('popup');
+    const backendBase = 'https://lectrice.onrender.com';
+
+    document.getElementById('text').addEventListener('mouseup', async (e) => {
+      const word = window.getSelection().toString().trim();
+      if (!word || !/^[a-zA-ZÀ-ÿ-]+$/.test(word)) return;
+
+      try {
+        const res = await fetch(`${backendBase}/define/${encodeURIComponent(word)}`);
+        const data = await res.json();
+
+        if (data.error) {
+          popup.innerText = data.error;
+        } else {
+          popup.innerHTML = '<strong>Traductions:</strong><ul>' +
+            data.map(d => `<li><strong>${d.french}</strong> → ${d.english}</li>`).join('') +
+            '</ul>';
+        }
+
+        popup.style.display = 'block';
+        popup.style.top = `${e.pageY + 10}px`;
+        popup.style.left = `${e.pageX + 10}px`;
+      } catch (err) {
+        popup.innerText = 'Erreur de chargement.';
+        popup.style.display = 'block';
+      }
+    });
+
+    document.addEventListener('click', () => {
+      popup.style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
