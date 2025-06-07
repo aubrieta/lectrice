@@ -1,8 +1,10 @@
 from flask import Flask, jsonify
 from bs4 import BeautifulSoup
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Allow frontend on different origin
 
 @app.route('/define/<word>')
 def define(word):
@@ -11,7 +13,7 @@ def define(word):
     r = requests.get(url, headers=headers)
 
     if r.status_code != 200:
-        return jsonify({"error": "Could not fetch definition"}), 500
+        return jsonify({"error": "Failed to fetch definition"}), 500
 
     soup = BeautifulSoup(r.text, 'html.parser')
     results = []
@@ -25,10 +27,10 @@ def define(word):
                 en = row.find('td', class_='ToWrd')
                 if fr and en:
                     results.append({
-                        "french": fr.get_text(strip=True),
-                        "english": en.get_text(strip=True)
+                        "french": fr.find('strong').get_text(strip=True) if fr.find('strong') else fr.get_text(strip=True),
+                        "english": en.find('strong').get_text(strip=True) if en.find('strong') else en.get_text(strip=True)
                     })
             if len(results) >= 3:
                 break
 
-    return jsonify(results if results else {"error": "No results"})
+    return jsonify(results if results else {"error": "No results found"})
