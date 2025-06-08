@@ -2,23 +2,17 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>French Word Lookup</title>
+  <title>French Lookup</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 2em;
-    }
-    #text {
-      line-height: 1.6;
-      cursor: pointer;
-    }
+    body { font-family: sans-serif; margin: 2em; }
+    #text { line-height: 1.6; cursor: pointer; }
     #popup {
       display: none;
       position: absolute;
       background: white;
       border: 1px solid #ccc;
       padding: 1em;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       max-width: 300px;
       z-index: 10;
     }
@@ -36,20 +30,23 @@
 
   <script>
     const popup = document.getElementById('popup');
-    const backendBase = 'https://your-backend-name.onrender.com'; // ← Replace with your Render backend URL
+    const backendBase = 'https://lectrice.onrender.com'; // Replace with your Render URL
+    const defaultLimit = 5; // How many definitions to fetch
 
     document.getElementById('text').addEventListener('mouseup', async (e) => {
       const word = window.getSelection().toString().trim();
       if (!word || !/^[a-zA-ZÀ-ÿ-]+$/.test(word)) return;
 
       try {
-        const res = await fetch(`${backendBase}/define/${encodeURIComponent(word)}`);
+        const res = await fetch(
+          `${backendBase}/define/${encodeURIComponent(word)}?limit=${defaultLimit}`
+        );
         const data = await res.json();
 
         if (data.error) {
           popup.innerText = data.error;
         } else {
-          popup.innerHTML = '<strong>Traduction:</strong><ul>' +
+          popup.innerHTML = '<strong>Traductions:</strong><ul>' +
             data.map(d => `<li><strong>${d.french}</strong> → ${d.english}</li>`).join('') +
             '</ul>';
         }
